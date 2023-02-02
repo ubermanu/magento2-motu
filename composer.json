@@ -1,0 +1,25 @@
+{
+    "name": "ubermanu/magento2-motu",
+    "description": "An implementation of the island architecture for Magento 2",
+    "type": "magento2-module",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Emmanuel Vodor",
+            "email": "manu@paca.happy-dev.fr"
+        }
+    ],
+    "require": {
+        "magento/framework": "*"
+    },
+    "autoload": {
+        "files": [
+            "registration.php"
+        ],
+        "psr-4": {
+            "Ubermanu\\Motu\\": ""
+        }
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true
+}
