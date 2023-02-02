@@ -7,7 +7,7 @@ define([
     $.widget('mage.islandRenderer', {
         options: {
             renderMethod: 'load',
-            url: ''
+            renderUrl: ''
         },
 
         /**
@@ -119,8 +119,7 @@ define([
             const self = this;
 
             $.ajax({
-                url: this.options.url,
-                data: data || {},
+                url: this.options.renderUrl,
                 success: function (response) {
                     self.element.html(response);
                     self.element.trigger('contentUpdated');
