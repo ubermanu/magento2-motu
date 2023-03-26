@@ -14,7 +14,7 @@ composer require ubermanu/magento2-motu
 
 ## Quick start
 
-### Create a new island
+Create a new island block:
 
 ```php
 <?php
