@@ -5,8 +5,9 @@ namespace Ubermanu\Motu\Observer;
 use Magento\Framework\App\RequestInterface;
 use Magento\Framework\Event\Observer;
 use Magento\Framework\Event\ObserverInterface;
+use Magento\Framework\View\Element\AbstractBlock;
 use Ubermanu\Motu\Helper\Island as IslandHelper;
-use Ubermanu\Motu\View\Element\AbstractIsland;
+use Ubermanu\Motu\View\Element\IslandInterface;
 
 class IslandServerSideHtml implements ObserverInterface
 {
@@ -17,6 +18,10 @@ class IslandServerSideHtml implements ObserverInterface
     }
 
     /**
+     * When rendering the block on the server side, we wrap it in a div
+     * that automatically loads the block on the client side, using the
+     * island name and the client method.
+     *
      * @inheritDoc
      */
     public function execute(Observer $observer)
@@ -24,25 +29,22 @@ class IslandServerSideHtml implements ObserverInterface
         $block = $observer->getData('block');
         $html = $observer->getData('transport')->getHtml();
 
-        if (!$block instanceof AbstractIsland) {
+        // Must implement IslandInterface and AbstractBlock
+        if (!$block instanceof IslandInterface || !$block instanceof AbstractBlock) {
             return;
         }
 
-        // When rendering the block on the server side, we wrap it in a div
-        // that automatically loads the block on the client side, using the
-        // island name and the client method.
-        if ($this->islandHelper->isServerSideRendering()) {
-            if (!$block->getClientMethod()) {
-                return;
-            }
+        // Skip if the client method is not set or if we are rendering the page on the client side
+        if ($this->islandHelper->isClientSideRendering() || !$block->getClientMethod()) {
+            return;
+        }
 
-            $jsParams = $this->islandHelper->getJsParams($block);
+        $jsParams = $this->islandHelper->getJsParams($block);
 
-            $html = <<<HTML
+        $html = <<<HTML
 <div data-island="{$block->getNameInLayout()}" data-mage-init='{"islandRenderer":{$jsParams}}'>{$html}</div>
 HTML;
 
-            $observer->getData('transport')->setHtml($html);
-        }
+        $observer->getData('transport')->setHtml($html);
     }
 }

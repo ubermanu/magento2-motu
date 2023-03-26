@@ -3,8 +3,9 @@
 namespace Ubermanu\Motu\Helper;
 
 use Magento\Framework\App\RequestInterface;
+use Magento\Framework\View\Element\AbstractBlock;
 use Magento\Framework\View\Element\Block\ArgumentInterface;
-use Ubermanu\Motu\View\Element\AbstractIsland;
+use Ubermanu\Motu\View\Element\IslandInterface;
 
 class Island implements ArgumentInterface
 {
@@ -48,10 +49,10 @@ class Island implements ArgumentInterface
     }
 
     /**
-     * @param AbstractIsland $block
+     * @param AbstractBlock|IslandInterface $block
      * @return string
      */
-    public function getJsParams(AbstractIsland $block): string
+    public function getJsParams(AbstractBlock|IslandInterface $block): string
     {
         $renderUrl = $block->getUrl('*/*/*', [
             '_current' => true,
