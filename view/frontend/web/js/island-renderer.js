@@ -16,26 +16,34 @@ define([
         _create: function () {
             const [renderMethod, ...renderOptions] = this.options.renderMethod.split('|');
 
+            /** @type {(() => void | unknown)} */
+            let unsubscribe;
+
             switch (renderMethod) {
                 case 'load':
                     this._onLoad();
                     break;
                 case 'idle':
-                    this._onIdle();
+                    unsubscribe = this._onIdle();
                     break;
                 case 'visible':
-                    this._onVisible();
+                    unsubscribe = this._onVisible();
                     break;
                 case 'media':
-                    this._onMedia(renderOptions);
+                    unsubscribe = this._onMedia(renderOptions);
                     break;
                 default:
                     throw new Error(`Unknown render method: "${renderMethod}"`);
             }
+
+            // This will be called when the widget is destroyed
+            this._onDestroy = unsubscribe || $.noop;
         },
 
         /**
          * Load and hydrate the component JavaScript immediately on page load.
+         *
+         * @returns {void}
          * @private
          */
         _onLoad: function () {
@@ -43,27 +51,30 @@ define([
         },
 
         /**
-         * Load and hydrate the component JavaScript once the page is done with its initial load and the requestIdleCallback event has fired.
+         * Load and hydrate the component JavaScript once the page is done with its initial load and the
+         * requestIdleCallback event has fired.
          * If you are in a browser that doesn't support requestIdleCallback, then the document load event is used.
+         *
+         * @returns {() => void}
          * @private
          */
         _onIdle: function () {
             const self = this;
 
             if (window.requestIdleCallback) {
-                requestIdleCallback(function () {
-                    self.render();
-                });
+                const id = requestIdleCallback(self.render);
+                return () => cancelIdleCallback(id);
             } else {
-                $(window).on('load', function () {
-                    self.render();
-                });
+                $(window).on('load', self.render);
+                return () => $(window).off('load', self.render);
             }
         },
 
         /**
-         * Load and hydrate the component JavaScript once the component has entered the user’s viewport.
-         * This uses an IntersectionObserver internally to keep track of visibility.
+         * Load and hydrate the component once it has entered the user’s viewport.
+         * If `IntersectionObserver` is not supported, then the document load event is used.
+         *
+         * @returns {() => void}
          * @private
          */
         _onVisible: function () {
@@ -80,14 +91,18 @@ define([
                 });
 
                 observer.observe(this.element[0]);
+
+                return () => observer.disconnect();
             } else {
-                this._onIdle();
+                return this._onIdle();
             }
         },
 
         /**
          * Loads and hydrates the component JavaScript once a certain CSS media query is met.
-         * @param options
+         *
+         * @param {string[]} options
+         * @returns {() => void | unknown}
          * @private
          */
         _onMedia: function (options) {
@@ -100,20 +115,26 @@ define([
                 if (mediaQueryList.matches) {
                     this.render();
                 } else {
-                    mediaQueryList.addListener(function () {
+                    function _render() {
                         if (mediaQueryList.matches) {
                             self.render();
                         }
-                    });
+                    }
+
+                    mediaQueryList.addListener(_render);
+
+                    return () => mediaQueryList.removeListener(_render);
                 }
             } else {
-                this._onIdle();
+                return this._onIdle();
             }
         },
 
         /**
-         * Send ajax request and render response in the container
-         * @private
+         * Send ajax request and render response in the container.
+         * Once the result is rendered, the widget is destroyed, and subscriptions are removed.
+         *
+         * @returns {void}
          */
         render: function () {
             const self = this;
@@ -123,9 +144,24 @@ define([
                 success: function (response) {
                     self.element.html(response);
                     self.element.trigger('contentUpdated');
+
+                    // Fire an event to let other components know that this island has been rendered
+                    $(document).trigger('islandRendered', {
+                        element: self.element,
+                        method: self.options.renderMethod
+                    });
+
+                    self.destroy();
                 },
             });
         },
+
+        /**
+         * @private
+         */
+        destroy: function () {
+            this._onDestroy();
+        }
     });
 
     return $.mage.islandRenderer;
