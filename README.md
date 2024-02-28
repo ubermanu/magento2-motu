@@ -19,9 +19,9 @@ Create a new island block:
 ```php
 <?php
 
-namespace Vendor\Module\Island;
+namespace Vendor\Module\Block\Island;
 
-class MyIsland extends \Ubermanu\Motu\View\Element\AbstractIsland
+class Example extends \Ubermanu\Motu\View\Element\AbstractIsland
 {
     public function getClientMethod(): string
     {
@@ -34,12 +34,13 @@ Add the block to your layout:
 
 ```xml
 <?xml version="1.0"?>
-<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
     <body>
         <referenceContainer name="content">
-            <block class="Vendor\Module\Island\MyIsland"
-                   name="my_island"
-                   template="Vendor_Module::island.phtml" />
+            <block class="Vendor\Module\Block\Island\Example"
+                   name="example"
+                   template="Vendor_Module::island/example.phtml" />
         </referenceContainer>
     </body>
 </page>
