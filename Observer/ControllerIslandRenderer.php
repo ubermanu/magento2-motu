@@ -15,6 +15,7 @@ class ControllerIslandRenderer implements ObserverInterface
     public function __construct(
         protected \Magento\Framework\View\LayoutInterface $layout,
         protected \Ubermanu\Motu\Helper\Island $islandHelper,
+        protected \Ubermanu\Motu\Filter\RemoveWhitespaces $removeWhitespaces,
     ) {
     }
 
@@ -39,7 +40,7 @@ class ControllerIslandRenderer implements ObserverInterface
         if (!$block instanceof IslandInterface) {
             $response->setBody('');
         } else {
-            $response->setBody($block->toHtml());
+            $response->setBody($this->removeWhitespaces->filter($block->toHtml()));
         }
 
         $response->sendResponse();
