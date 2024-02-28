@@ -18,13 +18,13 @@ class IslandServerSideHtml implements ObserverInterface
      * When rendering the block on the server side, we wrap it in a div
      * that automatically loads the block on the client side, using the
      * island name and the client method.
+     * TODO: Avoid pre-rendering the block on the server side if the client method is set.
      *
      * @inheritDoc
      */
     public function execute(Observer $observer)
     {
         $block = $observer->getData('block');
-        $html = $observer->getData('transport')->getHtml();
 
         // Must implement IslandInterface and AbstractBlock
         if (!$block instanceof IslandInterface) {
@@ -39,7 +39,7 @@ class IslandServerSideHtml implements ObserverInterface
         $jsParams = $this->islandHelper->getJsParams($block);
 
         $html = <<<HTML
-<div data-island="{$block->getNameInLayout()}" data-mage-init='{"islandRenderer":{$jsParams}}'>{$html}</div>
+<div data-island="{$block->getNameInLayout()}" data-mage-init='{"islandRenderer":{$jsParams}}'></div>
 HTML;
 
         $observer->getData('transport')->setHtml($html);
