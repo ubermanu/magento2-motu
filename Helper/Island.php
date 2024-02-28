@@ -8,13 +8,13 @@ use Ubermanu\Motu\View\Element\IslandInterface;
 class Island implements ArgumentInterface
 {
     /**
-     * Island parameter name in the request.
+     * Header to set the render mode.
      * @var string
      */
-    const PARAM_ISLAND_NAME = 'island_name';
+    const HEADER_ISLAND_NAME = 'X-Island-Name';
 
     public function __construct(
-        protected \Magento\Framework\App\RequestInterface $request,
+        protected \Magento\Framework\App\Request\Http $request,
     ) {
     }
 
@@ -23,12 +23,13 @@ class Island implements ArgumentInterface
      */
     public function getIslandName(): ?string
     {
-        return $this->request->getParam(self::PARAM_ISLAND_NAME) ?? null;
+        return $this->request->getHeader(self::HEADER_ISLAND_NAME) ?: null;
     }
 
     /**
      * If the island name is not set, it means we are rendering the page on the server side.
      * This is the default behavior.
+     *
      * @return bool
      */
     public function isServerSideRendering(): bool
@@ -39,6 +40,7 @@ class Island implements ArgumentInterface
     /**
      * If the island name is set, it means we are rendering the page on the client side.
      * A controller observer will render the island block only.
+     *
      * @return bool
      */
     public function isClientSideRendering(): bool
@@ -52,18 +54,15 @@ class Island implements ArgumentInterface
      */
     public function getJsParams(IslandInterface $block): string
     {
-        $renderUrl = $block->getUrl('*/*/*', [
+        $currentUrl = $block->getUrl('*/*/*', [
             '_current' => true,
             '_use_rewrite' => true,
-            '_query' => [
-                self::PARAM_ISLAND_NAME => $block->getNameInLayout(),
-            ],
         ]);
 
         $params = [
             'islandName' => $block->getNameInLayout(),
             'renderMethod' => $block->getClientMethod(),
-            'renderUrl' => $renderUrl,
+            'renderUrl' => $currentUrl,
         ];
 
         return json_encode($params);
