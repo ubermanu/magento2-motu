@@ -15,6 +15,7 @@ class Island implements ArgumentInterface
 
     public function __construct(
         protected \Magento\Framework\App\Request\Http $request,
+        protected \Magento\Framework\Serialize\Serializer\Json $json,
     ) {
     }
 
@@ -65,6 +66,6 @@ class Island implements ArgumentInterface
             'renderUrl' => $currentUrl,
         ];
 
-        return json_encode($params);
+        return $this->json->serialize($params);
     }
 }
