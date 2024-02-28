@@ -29,4 +29,9 @@ interface IslandInterface extends BlockInterface
      * @return string|null
      */
     public function getClientMethod();
+
+    /**
+     * @return string
+     */
+    public function getNameInLayout();
 }

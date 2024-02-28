@@ -4,8 +4,7 @@ namespace Ubermanu\Motu\Observer;
 
 use Magento\Framework\Event\Observer;
 use Magento\Framework\Event\ObserverInterface;
-use Magento\Framework\View\LayoutInterface;
-use Ubermanu\Motu\Helper\Island as IslandHelper;
+use Ubermanu\Motu\View\Element\IslandInterface;
 
 /**
  * Get the "island" parameter from the request and render the associated block
@@ -14,8 +13,8 @@ use Ubermanu\Motu\Helper\Island as IslandHelper;
 class ControllerIslandRenderer implements ObserverInterface
 {
     public function __construct(
-        protected LayoutInterface $layout,
-        protected IslandHelper $islandHelper
+        protected \Magento\Framework\View\LayoutInterface $layout,
+        protected \Ubermanu\Motu\Helper\Island $islandHelper,
     ) {
     }
 
@@ -37,7 +36,7 @@ class ControllerIslandRenderer implements ObserverInterface
         // The block must implement the IslandInterface
         $block = $this->layout->getBlock($islandName);
 
-        if (!$block instanceof \Ubermanu\Motu\View\Element\IslandInterface) {
+        if (!$block instanceof IslandInterface) {
             $response->setBody('');
         } else {
             $response->setBody($block->toHtml());

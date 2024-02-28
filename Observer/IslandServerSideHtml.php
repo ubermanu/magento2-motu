@@ -2,18 +2,15 @@
 
 namespace Ubermanu\Motu\Observer;
 
-use Magento\Framework\App\RequestInterface;
 use Magento\Framework\Event\Observer;
 use Magento\Framework\Event\ObserverInterface;
-use Magento\Framework\View\Element\AbstractBlock;
-use Ubermanu\Motu\Helper\Island as IslandHelper;
 use Ubermanu\Motu\View\Element\IslandInterface;
 
 class IslandServerSideHtml implements ObserverInterface
 {
     public function __construct(
-        protected RequestInterface $request,
-        protected IslandHelper $islandHelper
+        protected \Magento\Framework\App\RequestInterface $request,
+        protected \Ubermanu\Motu\Helper\Island $islandHelper,
     ) {
     }
 
@@ -30,7 +27,7 @@ class IslandServerSideHtml implements ObserverInterface
         $html = $observer->getData('transport')->getHtml();
 
         // Must implement IslandInterface and AbstractBlock
-        if (!$block instanceof IslandInterface || !$block instanceof AbstractBlock) {
+        if (!$block instanceof IslandInterface) {
             return;
         }
 
