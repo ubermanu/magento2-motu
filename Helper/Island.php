@@ -2,10 +2,10 @@
 
 namespace Ubermanu\Motu\Helper;
 
-use Magento\Framework\View\Element\Block\ArgumentInterface;
+use Magento\Framework\App\Helper\AbstractHelper;
 use Ubermanu\Motu\View\Element\IslandInterface;
 
-class Island implements ArgumentInterface
+class Island extends AbstractHelper
 {
     /**
      * Header to set the render mode.
@@ -14,9 +14,11 @@ class Island implements ArgumentInterface
     const HEADER_ISLAND_NAME = 'X-Island-Name';
 
     public function __construct(
+        \Magento\Framework\App\Helper\Context $context,
         protected \Magento\Framework\App\Request\Http $request,
         protected \Magento\Framework\Serialize\Serializer\Json $json,
     ) {
+        parent::__construct($context);
     }
 
     /**
@@ -55,7 +57,7 @@ class Island implements ArgumentInterface
      */
     public function getJsParams(IslandInterface $block): string
     {
-        $currentUrl = $block->getUrl('*/*/*', [
+        $currentUrl = $this->_urlBuilder->getUrl('*/*/*', [
             '_current' => true,
             '_use_rewrite' => true,
         ]);
