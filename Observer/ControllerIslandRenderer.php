@@ -16,6 +16,8 @@ class ControllerIslandRenderer implements ObserverInterface
         protected \Magento\Framework\View\LayoutInterface $layout,
         protected \Ubermanu\Motu\Helper\Island $islandHelper,
         protected \Ubermanu\Motu\Filter\RemoveWhitespaces $removeWhitespaces,
+        protected \Magento\Framework\App\Response\Http $response,
+        protected \Psr\Log\LoggerInterface $logger,
     ) {
     }
 
@@ -28,21 +30,31 @@ class ControllerIslandRenderer implements ObserverInterface
             return;
         }
 
-        $controller = $observer->getControllerAction();
-        $response = $controller->getResponse();
-
         $islandName = $this->islandHelper->getIslandName();
 
         // Find the block in the layout and render it
         // The block must implement the IslandInterface
         $block = $this->layout->getBlock($islandName);
 
+        // If the block does not exist or does not implement IslandInterface, we return an empty response
         if (!$block instanceof IslandInterface) {
-            $response->setBody('');
+            $html = '';
         } else {
-            $response->setBody($this->removeWhitespaces->filter($block->toHtml()));
+            try {
+                $html = $this->removeWhitespaces->filter($block->toHtml());
+            } catch (\Exception $e) {
+                $html = '';
+                $this->logger->error($e->getMessage());
+            }
         }
 
-        $response->sendResponse();
+        // Override the response, return the HTML of the block
+        $this->response->getHeaders()->clearHeaders();
+        $this->response->setHeader('Content-Type', 'text/html');
+        $this->response->setHeader('Content-Length', strlen($html));
+        $this->response->setHttpResponseCode(200);
+        $this->response->setBody($html);
+
+        $this->response->sendResponse();
     }
 }
