@@ -27,7 +27,6 @@ interface IslandInterface extends BlockInterface
      * If the method is null, the island will be shipped normally (SSR).
      *
      * @return string|null
-     * @see \Ubermanu\Motu\Model\Island\ClientMethod
      */
     public function getClientMethod();
 

@@ -1,6 +1,6 @@
 <?php
 
-namespace Ubermanu\Motu\Model\Island;
+namespace Ubermanu\Motu\View\Element;
 
 class ClientMethod
 {
