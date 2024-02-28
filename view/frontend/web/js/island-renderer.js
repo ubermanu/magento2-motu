@@ -6,7 +6,7 @@ define([
 
     $.widget('mage.islandRenderer', {
         options: {
-            islandName: '',
+            islandCode: '',
             renderMethod: 'load',
             renderUrl: ''
         },
@@ -143,7 +143,7 @@ define([
             $.ajax({
                 url: this.options.renderUrl,
                 headers: {
-                    'X-Island-Name': this.options.islandName
+                    'X-Island-Code': this.options.islandCode
                 },
                 success: function (response) {
                     self.element.html(response);
